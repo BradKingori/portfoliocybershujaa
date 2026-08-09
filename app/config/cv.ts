@@ -11,22 +11,14 @@ export type CvEntry = {
 const CV_BY_PATH: Record<string, CvEntry> = {
   "/": {
     label: "Download CV",
-    url: "https://drive.google.com/file/d/1JbUng3R_ZJRN2t6MZXnKGqknmIl-LIza/view?usp=drive_link",
-  },
-  "/photonics": {
-    label: "Photonics CV",
-    url: "https://drive.google.com/file/d/1JbUng3R_ZJRN2t6MZXnKGqknmIl-LIza/view?usp=drive_link",
+    url: "https://drive.google.com/file/d/1jNGv9jf5nTwkA1Nh-yw0KzavBV-g6_mf/view?usp=drive_link",
   },
   "/projects": {
     label: "Software CV",
-    url: "https://drive.google.com/file/d/1JbUng3R_ZJRN2t6MZXnKGqknmIl-LIza/view?usp=drive_link",
+    url: "https://drive.google.com/file/d/1jNGv9jf5nTwkA1Nh-yw0KzavBV-g6_mf/view?usp=drive_link",
   },
   "/cybersec": {
     label: "CyberSecurity CV",
-    url: "https://drive.google.com/file/d/1jNGv9jf5nTwkA1Nh-yw0KzavBV-g6_mf/view?usp=drive_link",
-  },
-  "/vlsi": {
-    label: "VLSI CV",
     url: "https://drive.google.com/file/d/1jNGv9jf5nTwkA1Nh-yw0KzavBV-g6_mf/view?usp=drive_link",
   },
 };

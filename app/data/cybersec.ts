@@ -302,7 +302,7 @@ export const WRITEUP = {
     {
       heading: "Mapping it to ATT&CK",
       body: [
-        "T1110.001 — Brute Force: Password Guessing, for the initial burst of failures. T1078 Valid Accounts, the moment the guessed credential succeeds and the activity stops looking like an attack and starts looking like an administrator. T1021.004 — Remote Services: SSH, the access vector itself.",
+        "T1110.001 — Brute Force: Password Guessing, for the initial burst of failures. T1078 Valid Accounts, the moment the guessed credential succeeds and the activity stops looking like an attack and starts looking like an administrator. T1021.004 Remote Services: SSH, the access vector itself.",
         "Then the post-compromise half: T1136.001 Create Account: Local Account for the new user, T1098 Account Manipulation for adding it to sudo, and T1548.003 — Abuse Elevation Control Mechanism: Sudo and Sudo Caching for the privileged commands that follow.",
         "Mapping is not decoration. It turns a one-off case into a detection requirement: if I can name the technique, I can ask whether we have coverage for it across every other host, not just this one.",
       ],

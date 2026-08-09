@@ -490,7 +490,7 @@ export default function Cybersec() {
                     {WRITEUP.sections.map((section) => (
                       <div key={section.heading}>
                         <h4 className="text-lg font-bold text-green-400 mb-3 font-mono">
-                          ## {section.heading}
+                          {section.heading}:-
                         </h4>
                         <div className="space-y-3">
                           {section.body.map((para, idx) => (

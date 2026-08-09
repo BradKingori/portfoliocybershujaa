@@ -239,11 +239,6 @@ export const ROOM_GROUPS: RoomGroup[] = [
 
 export type WriteupSection = { heading: string; body: string[] };
 
-// IMPORTANT(bradley): the METHOD below is accurate Linux auth.log / wtmp DFIR and
-// you can publish it as-is. The FINDINGS are left as <angle-bracket> placeholders
-// on purpose  I know the shape of Brutus but I will not put a specific attacker
-// IP, timestamp or username on your portfolio that I cannot verify. Open your
-// notes, fill in every <placeholder>, then delete this comment.
 export const WRITEUP = {
   title: "Brutus: Reconstructing an SSH Brute Force from auth.log and wtmp",
   subtitle: "DFIR triage · Hack The Box Sherlock: Brutus",

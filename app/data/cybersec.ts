@@ -256,14 +256,14 @@ export const WRITEUP = {
     {
       heading: "The scenario",
       body: [
-        "A Confluence server was hit over SSH. I get two files and no live system: /var/log/auth.log and /var/log/wtmp. That is the whole evidence set. The job is to answer the questions an incident lead actually asks — who got in, when, from where, what did they do once they were root, and is there anything left behind that means the box is still theirs.",
+        "A Confluence server was hit over SSH. I will get two files and no live system: /var/log/auth.log and /var/log/wtmp. That is the entire evidence set that i would require. The job is to answer the questions an incident lead actually asks — who got in, when, from where, what did they do once they were root, and is there anything left behind that means the box is still theirs.",
         "It is a small dataset, which makes it a good exercise in discipline. With two files there is nowhere to hide behind tooling; you either read the log correctly or you get the timeline wrong.",
       ],
     },
     {
       heading: "Knowing what each file can and cannot tell you",
       body: [
-        "auth.log is plain text and records authentication events as they are attempted — sshd, sudo, PAM, and the shadow-utils tools like useradd and usermod. Crucially it logs failures as well as successes, which is what makes brute force visible at all.",
+        "auth.log is known as plain text and records authentication events as they are attempted in all of the following sshd, sudo, PAM, and the shadow-utils tools like useradd and usermod. Crucially it logs failures as well as successes, which is what makes brute force visible at all.",
         "wtmp is binary and records completed login sessions, so it answers a different question: not 'who tried' but 'who was actually logged in, from where, and for how long'. It is not greppable — utmpdump wtmp renders it into readable records.",
         "Two related files worth knowing even though they are not in this set: btmp holds failed logins (lastb), and lastlog holds the most recent login per account. Naming what is absent from your evidence matters as much as reading what is present.",
       ],
@@ -287,23 +287,23 @@ export const WRITEUP = {
     {
       heading: "Following what happened after the login",
       body: [
-        "Once there is a valid session, auth.log keeps narrating, and the shadow-utils entries are the ones that reveal persistence. Account creation appears as 'useradd[PID]: new user: name=<user>, UID=..., GID=..., home=..., shell=...'. Privilege escalation follows as 'usermod[PID]: add <user> to group sudo'. A password being set logs as 'passwd[PID]: password changed for <user>'.",
-        "A new local account added to the sudo group minutes after a brute-forced root login is not an administrative coincidence. It is the attacker converting a cracked password into durable access that survives a password reset — which means remediation has to include deleting that account, not just rotating the compromised one.",
+        "Once there is a valid session, auth.log keeps narrating, and the shadow-utils entries are the ones that reveal persistence. Account creation appears as 'useradd[PID]: new user: name=<user>, UID, GID, home, shell'. Privilege escalation follows as 'usermod[PID]: add <user> to group sudo'. A password being set logs as 'passwd[PID]: password changed for <user>'.",
+        "A new local account added to the sudo group minutes after a brute-forced root login is not an administrative coincidence. It is the attacker converting a cracked password into durable access that survives a password reset which means remediation has to include deleting that account, not just rotating the compromised one.",
         "Commands run through sudo are logged too, in the form '<user> : TTY=<tty> ; PWD=<dir> ; USER=root ; COMMAND=<command>'. This is where you find out whether they were enumerating, pulling tooling down from the internet, or establishing something more permanent.",
       ],
     },
     {
       heading: "Findings",
       body: [
-        "TODO(bradley): fill these in from your own investigation. The five that matter, in this order — attacker source IP: <IP>. First successful login: <account> at <timestamp UTC>. Session duration from wtmp: <duration>, session/PID <n>. Persistence account created: <username>, added to <group> at <timestamp>. Post-compromise commands observed: <commands>.",
-        "TODO(bradley): then write two or three sentences on the part that was not obvious — where you nearly went wrong, or the artifact that resolved an ambiguity. That paragraph is the one that makes a reader believe you did the work rather than copied a walkthrough.",
+        "TODO(bradley): fill these in from your own investigation. The five that matter, in this order attacker source IP: <IP>. First successful login: <account> at <timestamp UTC>. Session duration from wtmp: <duration>, session/PID <n>. Persistence account created: <username>, added to <group> at <timestamp>. Post-compromise commands observed: <commands>.",
+        "TODO(bradley): then write two or three sentences on the part that was not obvious  where you nearly went wrong, or the artifact that resolved an ambiguity. That paragraph is the one that makes a reader believe you did the work rather than copied a walkthrough.",
       ],
     },
     {
       heading: "Mapping it to ATT&CK",
       body: [
-        "T1110.001 — Brute Force: Password Guessing, for the initial burst of failures. T1078 — Valid Accounts, the moment the guessed credential succeeds and the activity stops looking like an attack and starts looking like an administrator. T1021.004 — Remote Services: SSH, the access vector itself.",
-        "Then the post-compromise half: T1136.001 — Create Account: Local Account for the new user, T1098 — Account Manipulation for adding it to sudo, and T1548.003 — Abuse Elevation Control Mechanism: Sudo and Sudo Caching for the privileged commands that follow.",
+        "T1110.001 — Brute Force: Password Guessing, for the initial burst of failures. T1078 Valid Accounts, the moment the guessed credential succeeds and the activity stops looking like an attack and starts looking like an administrator. T1021.004 — Remote Services: SSH, the access vector itself.",
+        "Then the post-compromise half: T1136.001 Create Account: Local Account for the new user, T1098 Account Manipulation for adding it to sudo, and T1548.003 — Abuse Elevation Control Mechanism: Sudo and Sudo Caching for the privileged commands that follow.",
         "Mapping is not decoration. It turns a one-off case into a detection requirement: if I can name the technique, I can ask whether we have coverage for it across every other host, not just this one.",
       ],
     },
@@ -312,7 +312,7 @@ export const WRITEUP = {
       body: [
         "The single highest-value rule out of this case is the transition, not the volume. Failed SSH authentications alone are constant background noise on any internet-facing host and alerting on them trains analysts to ignore the alert. N failures followed by a success from the same source IP inside a short window is rare, high-fidelity, and is exactly the event that happened here.",
         "The second rule is the persistence pattern: useradd followed by that account being added to a privileged group, correlated against whether the session that ran it came from an expected source. In a change-managed environment, account creation from a fresh remote SSH session should never be routine.",
-        "The third is the cheapest and most often missed — a successful root login over SSH from an IP that has never authenticated to that host before. First-seen source addresses on privileged accounts catch a great deal for how little the rule costs.",
+        "The third is the cheapest and most often missed a successful root login over SSH from an IP that has never authenticated to that host before. First-seen source addresses on privileged accounts catch a great deal for how little the rule costs.",
       ],
     },
   ] as WriteupSection[],

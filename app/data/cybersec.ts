@@ -363,8 +363,14 @@ export const EDUCATION = [
     name: "BSC. in Applied Computer Technology",
     issuer: "United States International University - Africa ",
     year: "2021-2025",
-    status: "DONE" as const,
+  status: "Earned",
     description: "Major in CyberSecurity and Forensics",
+  },  {
+    name: "Diploma in Computer Engineering",
+    issuer: "Mount Kenya University  ",
+    year: "2013-2016",
+  status: "Earned",
+    description: "",
   },
 ];
 

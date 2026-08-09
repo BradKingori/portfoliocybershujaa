@@ -246,69 +246,69 @@ export type WriteupSection = { heading: string; body: string[] };
 // notes, fill in every <placeholder>, then delete this comment.
 export const WRITEUP = {
   title: "Brutus: Reconstructing an SSH Brute Force from auth.log and wtmp",
-  subtitle: "DFIR triage  Hack The Box Sherlock: Brutus",
+  subtitle: "DFIR triage · Hack The Box Sherlock: Brutus",
   readingTime: "7 min read",
   date: "2026",
   sections: [
     {
       heading: "The scenario",
       body: [
-        "A Confluence server was hit over SSH. I will get two files and no live system: /var/log/auth.log and /var/log/wtmp. That is the entire evidence set that i would require. The job is to answer the questions an incident lead actually asks  who got in, when, from where, what did they do once they were root, and is there anything left behind that means the box is still theirs.",
-        "It is a small dataset, which makes it a good exercise in discipline. With two files there is nowhere to hide behind tooling; you either read the log correctly or you get the timeline wrong.",
+        "This one gave me just two files and no live system to poke around in: /var/log/auth.log and /var/log/wtmp. A Confluence server had been hit over SSH, and that was the entire evidence set I had to work with. The goal was to answer the questions an incident lead would actually ask: who got in, when, from where, what they did once they had root, and whether anything was left behind that meant the box was still theirs.",
+        "It's a small dataset, so there wasn't much room to lean on tooling to do the thinking for me. I had to actually read the logs correctly, or the whole timeline would end up wrong.",
       ],
     },
     {
       heading: "Knowing what each file can and cannot tell you",
       body: [
-        "auth.log is known as plain text and records authentication events as they are attempted in all of the following sshd, sudo, PAM, and the shadow-utils tools like useradd and usermod. Crucially it logs failures as well as successes, which is what makes brute force visible at all.",
-        "wtmp is binary and records completed login sessions, so it answers a different question: not 'who tried' but 'who was actually logged in, from where, and for how long'. It is not greppable  utmpdump wtmp renders it into readable records.",
-        "Two related files worth knowing even though they are not in this set: btmp holds failed logins (lastb), and lastlog holds the most recent login per account. Naming what is absent from your evidence matters as much as reading what is present.",
+        "auth.log is plain text and logs authentication events as they happen: sshd, sudo, PAM, and shadow-utils tools like useradd and usermod all write to it. It logs failed attempts as well as successful ones, which is basically the only reason a brute force shows up at all.",
+        "wtmp is different. It's binary, and it records completed login sessions, so it answers a different question than auth.log does. Not 'who tried to log in,' but 'who was actually logged in, from where, and for how long.' It's not something you can grep directly, so I ran utmpdump against it to get readable output.",
+        "There are two related files I learned about that weren't part of this set: btmp, which holds failed logins (viewable with lastb), and lastlog, which holds the most recent login per account. Even as a beginner, it seemed worth noting what evidence I didn't have, not just what I did.",
       ],
     },
     {
       heading: "Spotting the brute force",
       body: [
-        "Brute force has an unmistakable shape in auth.log: a burst of 'Failed password for <user> from <IP> port <port> ssh2' lines from one source in a very short window. Attempts against accounts that do not exist show up slightly differently, as 'Failed password for invalid user <user> from <IP>'  that distinction is useful, because it tells you whether the attacker was guessing usernames or already knew a valid one.",
-        "Counting failures per source IP is the fastest way in. Sorting the source addresses by frequency separates the noisy internet background radiation from the one host that is genuinely working the door, and gives you a candidate attacker IP within a minute.",
-        "The moment that matters is the transition: the first 'Accepted password for <user> from <IP>' line from the same address that was failing. That single line is the compromise. Everything before it is an attempt; everything after it is an intrusion, and the timestamp on it becomes time zero for the whole timeline.",
+        "A brute force has a pretty recognizable shape in auth.log once you know what to look for: a burst of 'Failed password for <user> from <IP> port <port> ssh2' lines from one source, all in a short window. Attempts against accounts that don't exist look slightly different, 'Failed password for invalid user <user> from <IP>', and that difference actually matters, since it tells you whether the attacker was guessing usernames blind or already had a real one.",
+        "The quickest way I found to narrow things down was counting failures per source IP. Sorting by frequency separated normal background noise from the one address that was clearly working the door, and that gave me a candidate attacker IP pretty fast.",
+        "The moment that really matters is the switch from failing to succeeding: the first 'Accepted password for <user> from <IP>' line from the same address that had been failing. That line is the actual compromise. Everything before it is just an attempt, everything after it is the intrusion, and its timestamp becomes time zero for the rest of the timeline.",
       ],
     },
     {
       heading: "Confirming the session in wtmp",
       body: [
-        "auth.log tells you authentication succeeded. wtmp tells you what the session actually was. Running utmpdump against it gives records with a type, a PID, a terminal, the username, the source host and a timestamp.",
-        "Sessions come in pairs: a user-process record when the session opens and a dead-process record on the same terminal when it closes. Pairing them gives session duration, which is the number that separates a login that was immediately dropped from one where somebody sat and worked. The PID field is what HTB refers to as the session number.",
-        "This is also the cross-check on your auth.log reading. If the source IP in wtmp does not match the one you pulled from the Accepted line, you have attributed the session to the wrong actor.",
+        "auth.log tells you the login succeeded. wtmp tells you what that session actually looked like. Running utmpdump against it gave me records with a type, a PID, a terminal, the username, the source host, and a timestamp.",
+        "Sessions show up in pairs: a user-process record when it opens and a dead-process record on the same terminal when it closes. Matching those pairs up gives you the session length, which tells you whether someone logged in and immediately left, or actually sat there and did something. The PID here is what HTB refers to as the session number.",
+        "This step also worked as a check on my auth.log reading. If the IP in wtmp hadn't matched the one from the Accepted line, that would have meant I'd attributed the session to the wrong source.",
       ],
     },
     {
       heading: "Following what happened after the login",
       body: [
-        "Once there is a valid session, auth.log keeps narrating, and the shadow-utils entries are the ones that reveal persistence. Account creation appears as 'useradd[PID]: new user: name=<user>, UID, GID, home, shell'. Privilege escalation follows as 'usermod[PID]: add <user> to group sudo'. A password being set logs as 'passwd[PID]: password changed for <user>'.",
-        "A new local account added to the sudo group minutes after a brute-forced root login is not an administrative coincidence. It is the attacker converting a cracked password into durable access that survives a password reset which means remediation has to include deleting that account, not just rotating the compromised one.",
-        "Commands run through sudo are logged too, in the form '<user> : TTY=<tty> ; PWD=<dir> ; USER=root ; COMMAND=<command>'. This is where you find out whether they were enumerating, pulling tooling down from the internet, or establishing something more permanent.",
+        "Once there's a valid session, auth.log keeps going, and the shadow-utils entries are the ones that give away persistence. A new account shows up as 'useradd[PID]: new user: name=<user>, UID, GID, home, shell.' Getting added to sudo follows as 'usermod[PID]: add <user> to group sudo.' Setting a password logs as 'passwd[PID]: password changed for <user>.'",
+        "Seeing a new local account get added to the sudo group just minutes after a brute-forced root login didn't look like a coincidence to me. It looked like the attacker turning one cracked password into access that would survive even if that password got reset. Which also means cleanup has to include deleting that new account, not just changing the password that got cracked.",
+        "Commands run through sudo get logged too, in the form '<user> : TTY=<tty> ; PWD=<dir> ; USER=root ; COMMAND=<command>.' This is where I could actually see whether they were just looking around, downloading tools, or setting something up to stick around.",
       ],
     },
     {
       heading: "Findings",
       body: [
-        "The intruder broke into the Confluence server by brute forcing SSH credentials. Once inside, they set up a hidden user account that let them keep exploring the system and install tools meant to maintain long term access. The fact that the login attempt succeeded points to weak passwords and a lack of layered security defenses."
-       ],
+        "The intruder got into the Confluence server by brute forcing SSH credentials. Once inside, they created a hidden user account that let them keep exploring the system and install tools meant to give them long-term access. The fact that the login succeeded at all points to weak passwords and a lack of layered defenses on the box.",
+      ],
     },
     {
       heading: "Mapping it to ATT&CK",
       body: [
-        "T1110.001  Brute Force: Password Guessing, for the initial burst of failures. T1078 Valid Accounts, the moment the guessed credential succeeds and the activity stops looking like an attack and starts looking like an administrator. T1021.004 Remote Services: SSH, the access vector itself.",
-        "Then the post-compromise half: T1136.001 Create Account: Local Account for the new user, T1098 Account Manipulation for adding it to sudo, and T1548.003  Abuse Elevation Control Mechanism: Sudo and Sudo Caching for the privileged commands that follow.",
-        "Mapping is not decoration. It turns a one-off case into a detection requirement: if I can name the technique, I can ask whether we have coverage for it across every other host, not just this one.",
+        "T1110.001 Brute Force: Password Guessing covers the initial burst of failures. T1078 Valid Accounts covers the moment the guessed credential works and the activity stops looking like an attack and starts looking like a normal login. T1021.004 Remote Services: SSH covers the access vector itself.",
+        "Then for what happened after: T1136.001 Create Account: Local Account for the new user, T1098 Account Manipulation for adding it to sudo, and T1548.003 Abuse Elevation Control Mechanism: Sudo and Sudo Caching for the privileged commands that came after that.",
+        "This was a new step for me, but it made sense once I did it. Naming the technique turns a one-off case into a question I can ask about every other host too, not just this one.",
       ],
     },
     {
-      heading: "What I would detect on",
+      heading: "What I'd want to detect on, going forward",
       body: [
-        "The single highest-value rule out of this case is the transition, not the volume. Failed SSH authentications alone are constant background noise on any internet-facing host and alerting on them trains analysts to ignore the alert. N failures followed by a success from the same source IP inside a short window is rare, high-fidelity, and is exactly the event that happened here.",
-        "The second rule is the persistence pattern: useradd followed by that account being added to a privileged group, correlated against whether the session that ran it came from an expected source. In a change-managed environment, account creation from a fresh remote SSH session should never be routine.",
-        "The third is the cheapest and most often missed a successful root login over SSH from an IP that has never authenticated to that host before. First-seen source addresses on privileged accounts catch a great deal for how little the rule costs.",
+        "The most useful signal here isn't the volume of failed logins, it's the transition. Failed SSH logins alone happen constantly on any internet-facing host, so alerting on those by themselves just teaches analysts to ignore the alert. A bunch of failures followed by a success from the same source IP in a short window is rare and high-confidence, and it's exactly what happened in this case.",
+        "The second thing worth watching for is the persistence pattern: a useradd followed by that same account getting added to a privileged group, checked against whether the session that ran it came from where you'd expect. In an environment with real change management, account creation from a fresh remote SSH session shouldn't be routine.",
+        "The third one is cheap and easy to miss: a successful root login over SSH from an IP that's never authenticated to that host before. Flagging first-seen source addresses on privileged accounts catches a lot for how little it costs to set up.",
       ],
     },
   ] as WriteupSection[],

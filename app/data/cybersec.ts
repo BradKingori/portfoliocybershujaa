@@ -292,9 +292,8 @@ export const WRITEUP = {
     {
       heading: "Findings",
       body: [
-        "TODO(bradley): fill these in from your own investigation. The five that matter, in this order attacker source IP: <IP>. First successful login: <account> at <timestamp UTC>. Session duration from wtmp: <duration>, session/PID <n>. Persistence account created: <username>, added to <group> at <timestamp>. Post-compromise commands observed: <commands>.",
-        "TODO(bradley): then write two or three sentences on the part that was not obvious  where you nearly went wrong, or the artifact that resolved an ambiguity. That paragraph is the one that makes a reader believe you did the work rather than copied a walkthrough.",
-      ],
+        "The intruder broke into the Confluence server by brute forcing SSH credentials. Once inside, they set up a hidden user account that let them keep exploring the system and install tools meant to maintain long term access. The fact that the login attempt succeeded points to weak passwords and a lack of layered security defenses."
+       ],
     },
     {
       heading: "Mapping it to ATT&CK",

@@ -360,11 +360,11 @@ export const CREDENTIALS: Credential[] = [
 // you won the USIU chapter of the Hult Prize but I will not guess a programme.
 export const EDUCATION = [
   {
-    name: "TODO: degree programme",
-    issuer: "TODO: institution",
-    year: "TODO",
-    status: "In Progress" as const,
-    description: "TODO: one line on relevant coursework.",
+    name: "BSC. in Applied Computer Technology",
+    issuer: "United States International University - Africa ",
+    year: "2021-2025",
+    status: "DONE" as const,
+    description: "Major in CyberSecurity and Forensics",
   },
 ];
 

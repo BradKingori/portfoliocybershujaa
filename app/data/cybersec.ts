@@ -109,9 +109,26 @@ export type Lab = {
   /** Drop an image URL here (Imgur, like your other pages) to replace the placeholder. */
   screenshot: string | null;
   screenshotCaption: string;
+  /** Internal route to a full writeup page, when one exists. */
+  reportPath?: string;
 };
 
 export const FEATURED_LABS: Lab[] = [
+  {
+    title: "Carnage",
+    platform: "TryHackMe",
+    difficulty: "Medium",
+    problem:
+      "A single PCAP from a workstation belonging to a user, Eric, who opened a phishing email. Nothing is labelled: the task is to establish how the host was compromised, what the attacker did next, and whether a command channel was ever actually established.",
+    action:
+      "Worked the capture in Wireshark from the delivery request outwards — followed the TCP stream carrying documents.zip to expose the archive contents and server banner, isolated the repeating POST pattern that gave away the first-stage loader C2, then traced the pivot to two Cobalt Strike servers and confirmed both against VirusTotal community intelligence. Caught the Host header spoofed as ocsp.verisign.com in the process.",
+    tools: ["Wireshark", "TLS/HTTP filters", "Follow TCP Stream", "VirusTotal", "MITRE ATT&CK"],
+    outcome:
+      "A full macro-to-Cobalt-Strike kill chain reconstructed from one capture: 18 blockable IOCs, a minute-by-minute timeline, and a detection rule worth writing — alert when the HTTP Host header disagrees with the destination IP's identity.",
+    screenshot: null,
+    screenshotCaption: "Wireshark screenshots are in the downloadable PDF report",
+    reportPath: "/cybersec/carnage",
+  },
   {
     title: "Brutus",
     platform: "Hack The Box · Sherlock",

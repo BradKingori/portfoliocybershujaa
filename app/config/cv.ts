@@ -21,6 +21,10 @@ const CV_BY_PATH: Record<string, CvEntry> = {
     label: "CyberSecurity CV",
     url: "https://drive.google.com/file/d/1jNGv9jf5nTwkA1Nh-yw0KzavBV-g6_mf/view?usp=drive_link",
   },
+  "/cybersec/carnage": {
+    label: "CyberSecurity CV",
+    url: "https://drive.google.com/file/d/1jNGv9jf5nTwkA1Nh-yw0KzavBV-g6_mf/view?usp=drive_link",
+  },
 };
 
 /** The CV for a given route, or null when that route should not show one. */

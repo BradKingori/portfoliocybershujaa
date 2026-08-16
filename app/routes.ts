@@ -4,4 +4,5 @@ export default [index("routes/home.tsx"),
     route("projects","routes/projects.tsx"),
     route("roguelab", "routes/roguelab.tsx"),
     route("cybersec","routes/cybersec.tsx"),
+    route("cybersec/carnage","routes/carnage.tsx"),
 ] satisfies RouteConfig;

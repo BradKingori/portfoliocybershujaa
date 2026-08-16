@@ -485,8 +485,51 @@ export default function Cybersec() {
             )}
 
             {activeTab === "writeups" && (
-              <section>
+              <section className="space-y-8">
                 <SectionHeading command="cat ~/writeups/*.md" />
+
+                {/* Carnage lives on its own page — this is the teaser into it. */}
+                <article className="bg-black/60 backdrop-blur-sm border border-green-500/30 rounded-lg p-6 md:p-10 hover:border-green-500 transition">
+                  <header className="border-b border-green-500/20 pb-5 mb-6">
+                    <div className="flex items-start justify-between gap-4 flex-wrap">
+                      <div>
+                        <h3 className="text-2xl md:text-3xl font-bold text-green-500 mb-2">
+                          {CARNAGE_META.title}
+                        </h3>
+                        <p className="text-green-400/70">{CARNAGE_META.subtitle}</p>
+                      </div>
+                      <span className="px-2 py-0.5 rounded border text-xs font-mono whitespace-nowrap text-cyan-300 border-cyan-500/40 bg-cyan-500/10">
+                        Incident report
+                      </span>
+                    </div>
+                    <p className="text-green-500/50 text-xs font-mono mt-3">
+                      {CARNAGE_META.date} • {CARNAGE_META.readingTime}
+                    </p>
+                  </header>
+
+                  <p className="text-green-400/80 text-sm leading-relaxed">
+                    {CARNAGE_SUMMARY}
+                  </p>
+
+                  <div className="flex flex-wrap gap-4 items-center mt-6">
+                    <Link
+                      to="/cybersec/carnage"
+                      className="inline-flex items-center gap-2 bg-green-500 text-black px-5 py-3 rounded-lg font-semibold text-sm hover:bg-green-400 transition"
+                    >
+                      Read the full report
+                      <span aria-hidden="true">→</span>
+                    </Link>
+                    <a
+                      href={CARNAGE_META.download.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-green-400 hover:text-green-300 font-mono text-sm transition"
+                    >
+                      [Download PDF]
+                    </a>
+                  </div>
+                </article>
+
                 <article className="bg-black/60 backdrop-blur-sm border border-green-500/30 rounded-lg p-6 md:p-10">
                   <header className="border-b border-green-500/20 pb-5 mb-6">
                     <h3 className="text-2xl md:text-3xl font-bold text-green-500 mb-2">

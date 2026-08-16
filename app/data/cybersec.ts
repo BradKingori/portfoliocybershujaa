@@ -226,6 +226,7 @@ export const ROOM_GROUPS: RoomGroup[] = [
       { name: "Splunk Basics  Did you SIEM?", difficulty: "Medium", note: "Ingesting and parsing custom log data" },
       { name: "Intro to Endpoint Security", difficulty: "Easy", note: "Endpoint monitoring methodology and tooling" },
       { name: "Threat Hunting: Introduction", difficulty: "Easy", note: "Hunting mindset, process and goals" },
+      { name: "Carnage", difficulty: "Medium", note: "PCAP analysis of a phishing-to-Cobalt-Strike intrusion" },
     ],
   },
   {

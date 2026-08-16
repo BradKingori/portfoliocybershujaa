@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
 import type { Route } from "./+types/cybersec";
+import { CARNAGE_META, CARNAGE_SUMMARY } from "../data/carnage";
 import {
   ABOUT,
   CREDENTIALS,
@@ -307,7 +309,17 @@ function LabCard({ lab }: { lab: Lab }) {
         ))}
       </div>
 
-      <ScreenshotSlot src={lab.screenshot} caption={lab.screenshotCaption} />
+      {lab.reportPath ? (
+        <Link
+          to={lab.reportPath}
+          className="mt-5 inline-flex items-center gap-2 border border-green-500 text-green-400 px-4 py-2 rounded-lg font-mono text-sm hover:bg-green-500/10 transition"
+        >
+          Read the full incident report
+          <span aria-hidden="true">→</span>
+        </Link>
+      ) : (
+        <ScreenshotSlot src={lab.screenshot} caption={lab.screenshotCaption} />
+      )}
     </article>
   );
 }
